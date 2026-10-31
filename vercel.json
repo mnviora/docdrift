@@ -1,5 +1,11 @@
 {
-  "functions": {
-    "app.py": { "maxDuration": 300 }
-  }
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python",
+      "config": { "includeFiles": ["docdrift/**"], "maxLambdaSize": "50mb" }
+    }
+  ],
+  "routes": [{ "src": "/(.*)", "dest": "api/index.py" }]
 }
