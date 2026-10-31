@@ -174,3 +174,13 @@ Developed as part of Hacktoberfest HackDay Sonipat 2026.
 ## Licence
 
 This project is licensed under the MIT Licence. See the LICENSE file for details.
+
+## Deploy on Vercel
+
+Vercel cannot run Ollama, so the deployed site uses any OpenAI-compatible hosted API instead (default: Groq). Set these environment variables in the Vercel project (Settings → Environment Variables):
+
+- `DOCDRIFT_API_KEY` (required): your API key. Setting it switches DocDrift from Ollama to the hosted API.
+- `DOCDRIFT_API_BASE` (optional): default `https://api.groq.com/openai/v1`.
+- `DOCDRIFT_API_MODEL` (optional): default `qwen/qwen3-32b`.
+
+Then run `vercel --prod`, or import the repo at vercel.com/new. Note: with this mode, submitted text is sent to that API provider.

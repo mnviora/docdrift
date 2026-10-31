@@ -62,7 +62,58 @@ def _timeout() -> float:
         return DEFAULT_TIMEOUT_SECONDS
 
 
+def _hosted() -> bool:
+    """True when an OpenAI-compatible hosted API is configured (used on Vercel)."""
+    return bool(os.environ.get("DOCDRIFT_API_KEY", "").strip())
+
+
+def _api_base() -> str:
+    return (os.environ.get("DOCDRIFT_API_BASE", "").strip() or "https://api.groq.com/openai/v1").rstrip("/")
+
+
+def _api_model() -> str:
+    return os.environ.get("DOCDRIFT_API_MODEL", "").strip() or "qwen/qwen3-32b"
+
+
+def _chat_hosted(messages: list[dict[str, str]]) -> str:
+    """Call an OpenAI-compatible chat endpoint. Only used if DOCDRIFT_API_KEY is set."""
+    payload = {
+        "model": _api_model(),
+        "messages": messages
+        + [{"role": "system", "content": "Reply with JSON only: an object with a 'findings' list."}],
+        "temperature": 0,
+        "response_format": {"type": "json_object"},
+    }
+    request = urllib.request.Request(
+        f"{_api_base()}/chat/completions",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + os.environ["DOCDRIFT_API_KEY"].strip(),
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=_timeout()) as response:
+            data = json.loads(response.read().decode("utf-8"))
+        content = data["choices"][0]["message"]["content"]
+    except urllib.error.HTTPError as exc:
+        raise OllamaError(f"The model API returned HTTP {exc.code}.") from exc
+    except (urllib.error.URLError, ConnectionError, TimeoutError, OSError) as exc:
+        raise OllamaUnavailableError(
+            f"Could not reach the model API at {_api_base()} ({getattr(exc, 'reason', exc)})."
+        ) from exc
+    except (ValueError, KeyError, IndexError, TypeError) as exc:
+        raise OllamaResponseError("The model API returned an unexpected response format.") from exc
+    if not isinstance(content, str) or not content.strip():
+        raise OllamaResponseError("The model returned an empty answer.")
+    # Some reasoning models prefix <think>...</think>
+    return re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL)
+
+
 def _chat(messages: list[dict[str, str]]) -> str:
+    if _hosted():
+        return _chat_hosted(messages)
     host = _host()
     payload = {
         "model": MODEL,
@@ -285,6 +336,16 @@ def check_status() -> dict[str, Any]:
     Never raises. Returns a dict with: host, model, ollama_reachable,
     model_installed, ready, message and fix (a plain instruction, or "").
     """
+    if _hosted():
+        return {
+            "host": _api_base(),
+            "model": _api_model(),
+            "ollama_reachable": True,
+            "model_installed": True,
+            "ready": True,
+            "message": f"Using hosted model {_api_model()}.",
+            "fix": "",
+        }
     host = _host()
     status: dict[str, Any] = {
         "host": host,

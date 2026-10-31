@@ -199,7 +199,7 @@ def build_markdown(findings: list[dict], warnings: list[str]) -> str:
             lines += [f"Why it may be outdated: {explanation}", ""]
     if warnings:
         lines += ["## Notes", ""] + [f"- {w}" for w in warnings] + [""]
-    lines += ["---", f"Checked locally with {ollama_client.MODEL} through Ollama.", ""]
+    lines += ["---", (f"Checked with {ollama_client._api_model()}." if ollama_client._hosted() else f"Checked locally with {ollama_client.MODEL} through Ollama."), ""]
     return "\n".join(lines)
 
 
@@ -216,7 +216,7 @@ def build_result(findings: list[dict], warnings: list[str]) -> dict[str, Any]:
     markdown = build_markdown(ordered, warnings)
     return {
         "ok": True,
-        "model": ollama_client.MODEL,
+        "model": ollama_client._api_model() if ollama_client._hosted() else ollama_client.MODEL,
         "verdict": verdict,
         "summary": summary,
         "findings": ordered,
