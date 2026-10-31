@@ -270,6 +270,61 @@ def _validate(
 
 
 # --------------------------------------------------------------------------
+# Status check (used by the website to show whether Ollama / the model is ready)
+# --------------------------------------------------------------------------
+
+INSTALL_HELP = (
+    "Install Ollama from https://ollama.com, start it (open the app or run "
+    f"`ollama serve`), then run `ollama pull {MODEL}`."
+)
+
+
+def check_status() -> dict[str, Any]:
+    """Report whether local Ollama is reachable and ``qwen3.5:4b`` is installed.
+
+    Never raises. Returns a dict with: host, model, ollama_reachable,
+    model_installed, ready, message and fix (a plain instruction, or "").
+    """
+    host = _host()
+    status: dict[str, Any] = {
+        "host": host,
+        "model": MODEL,
+        "ollama_reachable": False,
+        "model_installed": False,
+        "ready": False,
+        "message": "",
+        "fix": "",
+    }
+    try:
+        request = urllib.request.Request(f"{host}/api/tags", method="GET")
+        with urllib.request.urlopen(request, timeout=3) as response:
+            data = json.loads(response.read().decode("utf-8"))
+    except (urllib.error.URLError, ConnectionError, TimeoutError, OSError, ValueError):
+        status["message"] = f"Ollama is not reachable at {host}."
+        status["fix"] = INSTALL_HELP
+        return status
+
+    status["ollama_reachable"] = True
+    names: set[str] = set()
+    models = data.get("models") if isinstance(data, dict) else None
+    for entry in models if isinstance(models, list) else []:
+        if isinstance(entry, dict):
+            for key in ("name", "model"):
+                value = entry.get(key)
+                if isinstance(value, str):
+                    names.add(value)
+
+    if MODEL in names:
+        status["model_installed"] = True
+        status["ready"] = True
+        status["message"] = f"Ollama is running and {MODEL} is installed."
+    else:
+        status["message"] = f"Ollama is running, but the model {MODEL} is not installed."
+        status["fix"] = f"Run `ollama pull {MODEL}` in a terminal, then check again."
+    return status
+
+
+# --------------------------------------------------------------------------
 # Public interface
 # --------------------------------------------------------------------------
 

@@ -1,0 +1,10 @@
+[
+  {
+    "status": "possible_drift",
+    "document_file": "README.md",
+    "line_number": 9,
+    "quoted_text": "Use --timeout to stop slow jobs.",
+    "code_evidence": "-    parser.add_argument(\"--timeout\", type=int, default=30)\n+    parser.add_argument(\"--deadline\", type=int, default=30)",
+    "explanation": "The diff renames the --timeout option to --deadline, but the README still tells people to use --timeout."
+  }
+]

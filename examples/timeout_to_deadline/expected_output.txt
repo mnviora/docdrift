@@ -1,0 +1,9 @@
+Scanned files: 1 finding(s) (1 possible drift, 0 uncertain)
+
+[1] POSSIBLE DRIFT — README.md:9
+    Doc says:   "Use --timeout to stop slow jobs."
+    Code shows: -    parser.add_argument("--timeout", type=int, default=30)
++    parser.add_argument("--deadline", type=int, default=30)
+    Why:        The diff renames the --timeout option to --deadline, but the README still tells people to use --timeout.
+
+Review the 1 possible-drift item(s) above before merging.

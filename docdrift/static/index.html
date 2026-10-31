@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DocDrift: is your documentation out of date?</title>
+  <meta name="description" content="Check whether a code change made your Markdown documentation outdated, using a model that runs on your own computer.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#checker">Skip to the checker</a>
+
+  <header class="top">
+    <a class="brand" href="/">DocDrift</a>
+    <div id="status" class="status" data-state="checking" role="status">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span id="status-text">Checking Ollama…</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <h1 id="hero-title">Did your last code change make your docs wrong?</h1>
+        <p class="lead">Give DocDrift a code diff and the Markdown files that describe it. A language model running on your own computer flags the sentences that may no longer be true and shows the changed code behind each one.</p>
+        <div class="actions">
+          <button type="button" class="btn primary" id="try-sample">Try sample</button>
+          <a class="btn quiet" href="#checker">Check my own code</a>
+        </div>
+      </div>
+
+      <figure class="redline" aria-label="Example of a finding">
+        <figcaption>Example finding</figcaption>
+        <div class="redline-doc">
+          <p class="redline-where">README.md, line 9</p>
+          <p class="redline-sentence">Use <span class="flagged">--timeout</span> to stop slow jobs.</p>
+        </div>
+        <pre class="redline-code" aria-label="Changed code"><span class="d-del">-    parser.add_argument("--timeout", type=int, default=30)</span>
+<span class="d-add">+    parser.add_argument("--deadline", type=int, default=30)</span></pre>
+        <p class="redline-why">The option was renamed in the code, but the README still tells people to use the old name.</p>
+      </figure>
+    </section>
+
+    <section class="explain" aria-labelledby="explain-title">
+      <h2 id="explain-title">What it checks</h2>
+      <div class="explain-grid">
+        <p>DocDrift reads your diff and looks for documentation that describes something the change removed or renamed: command-line options, function names, default values, file paths.</p>
+        <p>Every finding quotes the exact sentence and the exact lines of the diff it is based on. If the diff does not clearly support a warning, the finding is marked uncertain.</p>
+        <p>Your text is only read, never run. It goes to Ollama on this computer and nowhere else. A clean result means no likely problem in the files you supplied, not that all your docs are up to date.</p>
+      </div>
+    </section>
+
+    <section id="setup" class="setup" hidden aria-labelledby="setup-title">
+      <h2 id="setup-title">Set up the local model</h2>
+      <p id="setup-message"></p>
+      <ol>
+        <li>Install Ollama from <strong>ollama.com</strong> and start it.</li>
+        <li>In a terminal, run <code>ollama pull qwen3.5:4b</code>.</li>
+        <li>Come back here and check again.</li>
+      </ol>
+      <button type="button" class="btn quiet" id="recheck">Check again</button>
+    </section>
+
+    <section id="checker" class="checker" aria-labelledby="checker-title">
+      <h2 id="checker-title">Check your documentation</h2>
+      <form id="form" novalidate>
+        <div class="panes">
+          <div class="pane">
+            <label for="diff" class="pane-title">Code diff</label>
+            <p class="hint" id="diff-hint">Paste the output of <code>git diff</code>, or upload a .diff or .patch file.</p>
+            <textarea id="diff" class="mono" rows="14" spellcheck="false" aria-describedby="diff-hint" autocomplete="off"></textarea>
+            <div class="pane-actions">
+              <input type="file" id="diff-file" class="visually-hidden" accept=".diff,.patch,.txt">
+              <button type="button" class="btn quiet" id="diff-upload">Upload .diff or .patch</button>
+            </div>
+          </div>
+
+          <div class="pane">
+            <span class="pane-title" id="docs-title">Documentation</span>
+            <p class="hint" id="docs-hint">Paste Markdown or upload one or more .md files. Line numbers in the results come from these files.</p>
+            <div id="docs" role="group" aria-labelledby="docs-title" aria-describedby="docs-hint"></div>
+            <div class="pane-actions">
+              <input type="file" id="docs-file" class="visually-hidden" accept=".md,.markdown" multiple>
+              <button type="button" class="btn quiet" id="docs-upload">Upload .md files</button>
+              <button type="button" class="btn quiet" id="doc-add">Add another document</button>
+            </div>
+          </div>
+        </div>
+
+        <p id="form-error" class="form-error" role="alert" hidden></p>
+
+        <div class="submit-row">
+          <button type="submit" class="btn primary large" id="submit">Check documentation</button>
+          <button type="button" class="btn quiet" id="sample-again">Load sample</button>
+          <button type="button" class="btn quiet" id="clear">Clear all</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="results" class="results" tabindex="-1" aria-live="polite" aria-labelledby="results-title" hidden>
+      <h2 id="results-title" class="visually-hidden">Results</h2>
+      <div id="results-body"></div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>DocDrift is open source (MIT). The checks use <strong>qwen3.5:4b</strong> through Ollama on your computer. No cloud AI service and no API keys are used.</p>
+  </footer>
+</body>
+</html>

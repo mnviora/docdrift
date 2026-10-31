@@ -22,6 +22,13 @@ def build_parser() -> argparse.ArgumentParser:
         default="origin/main",
         help="Git ref to compare against (default: origin/main)",
     )
+    serve = subparsers.add_parser("serve", help="start the local website")
+    serve.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="address to listen on (default: 127.0.0.1, this computer only)",
+    )
+    serve.add_argument("--port", type=int, default=8000, help="port (default: 8000)")
     return parser
 
 
@@ -58,4 +65,8 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.command == "check":
         return _run_check(args.base)
+    if args.command == "serve":
+        from docdrift import web  # imported here so `check` works without Flask
+
+        return web.run(args.host, args.port)
     return 2  # unreachable: argparse requires a valid subcommand

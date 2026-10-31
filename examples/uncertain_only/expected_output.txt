@@ -1,0 +1,6 @@
+Scanned files: 1 finding(s) (0 possible drift, 1 uncertain)
+
+[1] UNCERTAIN — docs/usage.md:17
+    Doc says:   "The sync command retries failed uploads automatically."
+    Code shows: +    logger.info("upload finished")
+    Why:        The diff only adds a log message, so it cannot confirm whether retry behaviour changed.
