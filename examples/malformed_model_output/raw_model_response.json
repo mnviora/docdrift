@@ -1,0 +1,24 @@
+[
+  {
+    "status": "possible_drift",
+    "document_file": "README.md",
+    "line_number": 42,
+    "quoted_text": "Use --timeout to set how long the command waits before giving up.",
+    "code_evidence": "argparse: parser.add_argument('--deadline', ...)  # replaces removed '--timeout' option",
+    "explanation": "The code diff renames the CLI option from --timeout to --deadline, but README.md still documents --timeout."
+  },
+  {
+    "status": "possible_drift",
+    "quoted_text": "Something about a missing file reference.",
+    "code_evidence": "no evidence"
+  },
+  "unexpected string instead of an object",
+  {
+    "status": "kinda_maybe",
+    "document_file": "docs/setup.md",
+    "line_number": "not-a-number",
+    "quoted_text": "Install with pip install mytool.",
+    "code_evidence": "setup.py now requires pip install -e .",
+    "explanation": "Install instructions may be stale, but the model wasn't fully sure of the status."
+  }
+]

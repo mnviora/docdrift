@@ -1,0 +1,19 @@
+3 issue(s) while reading the model's response:
+  - finding #2 dropped: missing or empty 'document_file'
+  - finding #3 dropped: finding is not a dict (got str)
+  - finding #4 kept with issues: unrecognized status 'kinda_maybe' (expected 'possible_drift' or 'uncertain'); line_number should be an int or null, got str
+
+Scanned files: 2 finding(s) (1 possible drift, 1 uncertain)
+
+[1] POSSIBLE DRIFT — README.md:42
+    Doc says:   "Use --timeout to set how long the command waits before giving up."
+    Code shows: argparse: parser.add_argument('--deadline', ...)  # replaces removed '--timeout' option
+    Why:        The code diff renames the CLI option from --timeout to --deadline, but README.md still documents --timeout.
+
+[2] UNCERTAIN — docs/setup.md
+    Doc says:   "Install with pip install mytool."
+    Code shows: setup.py now requires pip install -e .
+    Why:        Install instructions may be stale, but the model wasn't fully sure of the status.
+
+Review the 1 possible-drift item(s) above before merging.
+

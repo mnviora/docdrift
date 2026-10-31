@@ -1,0 +1,10 @@
+[
+  {
+    "status": "uncertain",
+    "document_file": "docs/usage.md",
+    "line_number": 17,
+    "quoted_text": "The sync command retries failed uploads automatically.",
+    "code_evidence": "+    logger.info(\"upload finished\")",
+    "explanation": "The diff only adds a log message, so it cannot confirm whether retry behaviour changed."
+  }
+]
