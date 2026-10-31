@@ -1,0 +1,21 @@
+=== Markdown ===
+## Documentation drift
+
+**2 finding(s)** — 1 possible drift, 1 uncertain
+
+### 1. 🔴 Possible Drift — `README.md:42`
+
+- **Doc says:** Use --timeout to set how long the command waits before giving up.
+- **Code shows:** `argparse: parser.add_argument('--deadline', ...)  # replaces removed '--timeout' option`
+- **Why:** The code diff renames the CLI option from --timeout to --deadline, but README.md still documents --timeout.
+
+### 2. 🟡 Uncertain — `docs/usage.md:17`
+
+- **Doc says:** The sync command retries failed uploads automatically.
+- **Code shows:** `No retry logic appears in the diff; only a log message was added.`
+- **Why:** The diff touches logging around uploads but doesn't show retry behavior changing, so drift here can't be confirmed from the diff alone.
+
+=== Compact ===
+README.md:42 [possible_drift] The code diff renames the CLI option from --timeout to --deadline, but README.md still documents --timeout.
+docs/usage.md:17 [uncertain] The diff touches logging around uploads but doesn't show retry behavior changing, so drift here can't be confirmed from the diff alone.
+

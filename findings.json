@@ -1,0 +1,18 @@
+[
+  {
+    "status": "possible_drift",
+    "document_file": "README.md",
+    "line_number": 42,
+    "quoted_text": "Use --timeout to set how long the command waits before giving up.",
+    "code_evidence": "argparse: parser.add_argument('--deadline', ...)  # replaces removed '--timeout' option",
+    "explanation": "The code diff renames the CLI option from --timeout to --deadline, but README.md still documents --timeout."
+  },
+  {
+    "status": "uncertain",
+    "document_file": "docs/usage.md",
+    "line_number": 17,
+    "quoted_text": "The sync command retries failed uploads automatically.",
+    "code_evidence": "No retry logic appears in the diff; only a log message was added.",
+    "explanation": "The diff touches logging around uploads but doesn't show retry behavior changing, so drift here can't be confirmed from the diff alone."
+  }
+]
